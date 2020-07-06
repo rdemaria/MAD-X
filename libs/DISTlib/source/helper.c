@@ -8,6 +8,13 @@
 #include "distgeneration.h"
 #include "outputdist.h"
 
+
+static struct distparam* dist;
+static struct distparam* diststart;
+static int dim;
+static int distn;
+
+
 /*This function converts from canoncial to sixtrack tracking variables*/
 void canonical2six(double *canonical, double beta0, double pc0,  double mass, double *coord){
     double deltap = canonical[5];

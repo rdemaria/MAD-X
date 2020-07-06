@@ -7,6 +7,11 @@
 #include "distgeneration.h"
 #include "outputdist.h"
 
+static struct distparam* dist;
+static struct distparam* diststart;
+static int dim;
+
+
 
 /*
 This allocates the the memory for the distributions

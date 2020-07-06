@@ -769,8 +769,13 @@ void exec_add_expression(struct in_cmd* cmd){
   struct expression* expr1, *expr2; 
   struct expression* exprcomb;
 
-  if ((var = find_variable(varname, variable_list)) != NULL){
-      
+  var=find_variable(varname, variable_list);
+
+  if (var == NULL) {
+      var=new_variable(varname, zero, 1, 1, NULL, NULL);
+      add_to_var_list(var, variable_list, 1);
+  };
+
     if(var->type==2){
       if(var->expr==NULL){
 
@@ -804,10 +809,7 @@ void exec_add_expression(struct in_cmd* cmd){
       warning("Varialbe has to be declared as defered expression or as an assignment: ", varname);
     }
 
-  }
-  else{
-    warning("The variable that trying to add expression to is not existing: ", varname);
-  }
+
 }
 
 void
