@@ -129,7 +129,7 @@ subroutine emit(deltap, tol, orbit0, disp0, rt, u0, emit_v, nemit_v, &
    al_errors = 0 
    n_align = node_al_errors(al_errors)
    n_perm_align = is_permalign()
-    
+
    if (n_perm_align .ne. 0) then
       al_errors(1) = al_errors(1) + node_value('dx ')
       al_errors(2) = al_errors(2) + node_value('dy ')
@@ -139,7 +139,7 @@ subroutine emit(deltap, tol, orbit0, disp0, rt, u0, emit_v, nemit_v, &
       al_errors(6) = al_errors(6) + node_value('dpsi ')
       n_align = 1
    endif
-   
+
    if (n_align .ne. 0)  then
       ORBIT2 = ORBIT
       call tmali1(orbit2,al_errors,betas,gammas,orbit,re)
@@ -309,7 +309,7 @@ subroutine emdamp(code, deltap, em1, em2, orb1, orb2, re)
         else
            h = an / el * (1 + ktap) ! tapering
         endif
-     
+
         !---- Refer orbit and eigenvectors to magnet midplane.
         ct = cos(tilt)
         st = sin(tilt)
@@ -404,7 +404,7 @@ subroutine emdamp(code, deltap, em1, em2, orb1, orb2, re)
         dbet2_sqr_dpt = (two/betas+two*pt2)/(pt2+one/betas)**2-(two*((pt2*two)/betas+pt2**2+one))/(pt2+one/betas)**3;
         denominator1 = two*sqrt(((rfac1-two)*rfac1)/bet1_sqr+one);
         denominator2 = two*sqrt(((rfac2-two)*rfac2)/bet2_sqr+one);
-        
+
         !---- Cubic integration over h**3 * E(i,5) * conjg(E(i,5)).
         bi2gi2 = one / (betas * gammas)**2
         hbi = h / betas
@@ -483,7 +483,7 @@ subroutine emdamp(code, deltap, em1, em2, orb1, orb2, re)
         !rw(6,4) = -drfac2_dpy*pt2-drfac2_dpy/betas;
         !rw(6,6) = one-rfac2;
         RE = matmul(RW,RE)
-        
+
      case (code_quadrupole , code_sextupole, code_octupole, code_solenoid) !---- Common to all pure multipoles.
         sk1 = zero
         sk2 = zero
@@ -519,26 +519,37 @@ subroutine emdamp(code, deltap, em1, em2, orb1, orb2, re)
         x1 = o1(1); px1 = o1(2); y1 = o1(3); py1 = o1(4); t1 = o1(5); pt1 = o1(6)
         x2 = o2(1); px2 = o2(2); y2 = o2(3); py2 = o2(4); t2 = o2(5); pt2 = o2(6)
 
-        !---- Local curvature.
-        r1sq = x1**2 + y1**2
-        r2sq = x2**2 + y2**2
-        h1 = abs(str) * sqrt(r1sq)**n + sksol*(sksol*x1-py1) + sksol*(sksol*y1+px1)
-        h2 = abs(str) * sqrt(r2sq)**n + sksol*(sksol*x2-py2) + sksol*(sksol*y2+px2)
-        rfac = cg * str**2 * el
-        rfac1 = rfac * r1sq**n + cg * sksol*(sksol*x1-py1) / el + cg * sksol*(sksol*y1+px1) / el;
-        rfac2 = rfac * r2sq**n + cg * sksol*(sksol*x2-py2) / el + cg * sksol*(sksol*y2+px2) / el;
-        drfac1_dx = twon * rfac * r1sq**(n-1) * x1 + (cg*sksol**2)/el
-        drfac2_dx = twon * rfac * r1sq**(n-1) * x2 + (cg*sksol**2)/el
-        drfac1_dy = twon * rfac * r1sq**(n-1) * y1 + (cg*sksol**2)/el
-        drfac2_dy = twon * rfac * r1sq**(n-1) * y2 + (cg*sksol**2)/el
-        drfac1_dpx = cg*sksol/el
-        drfac2_dpx = cg*sksol/el
-        drfac1_dpy = -cg*sksol/el
-        drfac2_dpy = -cg*sksol/el
-
-        !
         p1 = sqrt(pt1*pt1 + two*pt1/betas + one) ! delta + 1
         p2 = sqrt(pt2*pt2 + two*pt2/betas + one) ! delta + 1
+
+        !---- Local curvature of solenoid, zero otherwise
+        xp1=(px1+sksol*y1)/p1 ! x' in solenoid
+        xp2=(px2+sksol*y2)/p2 ! x' in solenoid
+        yp1=(py1-sksol*x1)/p1 ! x' in solenoid
+        yp2=(py2-sksol*x2)/p2 ! x' in solenoid
+        hsol1= sqrt((sksol*xp1)**2 + (sksol*yp1)**2)
+        hsol2= sqrt((sksol*xp2)**2 + (sksol*yp2)**2)
+
+        !---- Local curvature of multipole, zero otherwise
+        r1sq = x1**2 + y1**2
+        r2sq = x2**2 + y2**2
+        h1 = abs(str) * sqrt(r1sq)**n
+        h2 = abs(str) * sqrt(r2sq)**n
+        rfac = cg * str**2 * el
+
+        !---- Delta energy
+        rfac1 = cg * (h1**2 + hsol1**2) * el
+        rfac2 = cg * (h2**2 + hsol2**2) * el
+        drfac1_dx = twon * rfac * r1sq**(n-1) * x1 - 2*cg*el*sksol**3*yp1/p1
+        drfac2_dx = twon * rfac * r1sq**(n-1) * x2 - 2*cg*el*sksol**3*yp2/p2
+        drfac1_dy = twon * rfac * r1sq**(n-1) * y1 + 2*cg*el*sksol**3*xp1/p1
+        drfac2_dy = twon * rfac * r1sq**(n-1) * y2 + 2*cg*el*sksol**3*xp2/p2
+        drfac1_dpx = 2*cg*el*sksol**2*xp1/p1
+        drfac2_dpx = 2*cg*el*sksol**2*xp2/p2
+        drfac1_dpy = 2*cg*el*sksol**2*yp1/p1
+        drfac2_dpy = 2*cg*el*sksol**2*yp2/p2
+
+        !
         bet1_sqr = (pt1*pt1 + two*pt1/betas + one) / (one/betas + pt1)**2;
         bet2_sqr = (pt2*pt2 + two*pt2/betas + one) / (one/betas + pt2)**2;
         denominator1 = 2*sqrt(((rfac1-two)*rfac1)/bet1_sqr+one);
