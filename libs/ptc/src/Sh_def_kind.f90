@@ -5629,6 +5629,8 @@ integer :: kkk=0
     INTEGER I,J,f1
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
 
+    print *, "XXXX INTER_dkd2"
+
     SELECT CASE(EL%P%METHOD)
     CASE(1)
        if(EL%F==1) then
@@ -12093,6 +12095,9 @@ endif
     integer,optional :: pos
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
 
+    print *, "XXXX INTER_TEAPOT"
+
+
     if(.not.el%electric) then
 
     SELECT CASE(EL%P%METHOD)
@@ -12404,6 +12409,8 @@ endif
 
     INTEGER I
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
+
+    print *, "XXXX SINTER"
 
     ! IF(PRESENT(MID)) CALL XMID(MID,X,0)
 
@@ -12861,6 +12868,8 @@ endif
     TYPE(TEAPOT),INTENT(IN):: EL
 
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
+
+    print *, "XXXX SSYMPINTR"
 
     call fringe_TEAPOT(EL,X,k,1)
 
@@ -22524,6 +22533,8 @@ call kill(vm,phi,z)
     real(dp)  st,z,av(3),t ,x(6)
     type(internal_state) k
 
+    print *,"XXXX radiate_2r"
+
     IF(.NOT.CHECK_STABLE) return
     x=p%x
     el=>c%parent_fibre%mag
@@ -25452,6 +25463,8 @@ endif
     integer pos
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
 
+    print *, "XXXX INTE_TEAPOT_prober"
+
     POS=c%POS_IN_FIBRE-2
 
     f=>c%parent_fibre
@@ -27789,6 +27802,8 @@ endif
     INTEGER I,J,f1
     TYPE(INTERNAL_STATE) k !,OPTIONAL :: K
     integer pos
+    
+    print *, "XXXX INTE_dkd2_prober"
 
     f=>c%parent_fibre
     el=> f%mag%k2

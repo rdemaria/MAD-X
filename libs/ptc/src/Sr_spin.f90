@@ -654,6 +654,8 @@ endif
     type(internal_state) k
     INTEGER I
 
+    print *, "XXXX  PUSH_SPINR"
+
     !if(.not.(el%p%radiation.or.EL%P%SPIN)) return
     if(.not.(k%radiation.or.k%SPIN.or.k%envelope)) return
     IF(.NOT.CHECK_STABLE) return
